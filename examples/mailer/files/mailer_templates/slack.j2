@@ -1,0 +1,44 @@
+{
+   "attachments":[
+      {
+         "fallback":"Cloud Custodian Policy Violation",
+         "title":"Custodian",
+         "color":"{{ action['slack_msg_color']|default("danger") }}",
+         "fields":[
+            {
+              "title":"Policy",
+              "value":"{{ policy['name'] }}"
+            },
+            {
+               "title":"Account",
+               "value":"{{ account }}",
+               "short": true
+            },
+            {
+               "title":"Region",
+               "value":"{{ region }}",
+               "short": true
+            },
+            {
+               "title":"Violation Description",
+               "value":"{{ action['violation_desc'] }}"
+            },
+            {
+               "title":"Action Description",
+               "value":"{{ action['action_desc'] }}"
+            },
+            {
+               "title":"Resources",
+               "value":"You have *{{ resources | length }}* failing resources (Run `custodian report` for full output):\n\n
+                        {%- for resource in resources -%}
+                        {{ format_resource(resource, policy['resource']) | replace('\\"', '"') | replace('"', '\\"') }}\n
+                        {%- endfor -%}"
+            }
+         ]
+      }
+   ],
+   {%- if not recipient.startswith('https://') %}
+   "channel":"{{ recipient }}",
+   {%- endif -%}
+   "username":"Custodian"
+}

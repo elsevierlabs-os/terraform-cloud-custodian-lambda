@@ -1,0 +1,75 @@
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# Ignore plan output
+*.tfplan
+
+# Ignore Python venv
+.venv/
+
+# Ignore all policy.yaml/policy.yml and policies.yaml/policies.yml files in any directory
+policy.yaml
+policies.yaml
+**/policy.yaml
+**/policies.yaml
+policy.yml
+policies.yml
+**/policy.yml
+**/policies.yml
+
+# Ignore all mailer.yaml/mailer.yml files in any directory
+mailer.yaml
+**/mailer.yaml
+mailer.yml
+**/mailer.yml
+
+# Ignore build directory
+build/
+
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+
+# Testing and coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+test-report.html
+
+# Test artifacts
+test-results/
+*.log
+
+# Go test binaries
+*.test
+
+# Security and audit reports
+security-report.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
