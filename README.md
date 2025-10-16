@@ -44,7 +44,7 @@ module "cloud_custodian_lambda" {
   execution_options = {
     # Not really required but if you run custodian run you need to specify -s/--output-dir you'd then have execution-options
     # as part of the config.json with the output_dir that was specified
-    "output_dir" = "s3://<your-custodian-bucket>/outputregion=<region>"
+    "output_dir" = "s3://<your-custodian-bucket>/output?region=<region>"
   }
   policies = <<EOF
 ---
