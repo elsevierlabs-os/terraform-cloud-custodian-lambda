@@ -1,0 +1,5 @@
+# Exclude test code from language statistics
+tests/** linguist-vendored
+
+# Ensure examples are not excluded
+examples/** -linguist-vendored -linguist-documentation
