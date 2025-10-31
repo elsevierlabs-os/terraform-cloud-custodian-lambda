@@ -120,18 +120,20 @@ module "cloud_custodian_lambda" {
   regions = [local.region]
 
   execution_options = {
-    output_dir = "s3://${module.cloud_custodian_s3.s3_bucket_id}/output"
+    # Not really required but if you run custodian run you need to specify -s/--output-dir you'd then have execution-options
+    # as part of the config.json with the output_dir that was specified
+    "output_dir" = "s3://${local.prefix}periodic-${local.account_id}/output?region=${local.region}"
   }
 
-  policies = templatefile("${path.module}/templates/policies.yaml.tpl", {
+  policies = templatefile("${path.module}/templates/policy.yaml.tpl", {
     prefix     = local.prefix
     account_id = local.account_id
   })
 
   depends_on = [
+    module.cloud_custodian_s3,
     aws_iam_role.custodian,
     aws_iam_role.scheduler,
-    module.cloud_custodian_s3,
     aws_scheduler_schedule_group.custodian,
   ]
 }

@@ -231,8 +231,6 @@ resource "aws_lambda_permission" "schedule" {
   }
 }
 
-data "aws_caller_identity" "current" {}
-
 data "external" "cloudwatch_event" {
   count = local.cloudwatch_event_mode ? 1 : 0
   program = [
