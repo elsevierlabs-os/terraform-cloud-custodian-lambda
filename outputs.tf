@@ -84,62 +84,93 @@ output "lambda_function_filename" {
 # Periodic Mode Outputs
 output "periodic_event_rule" {
   description = "Complete AWS Cloudwatch Event Rule for periodic resource with all attributes"
-  value       = local.periodic ? aws_cloudwatch_event_rule.periodic : {}
+  value       = local.periodic_mode ? aws_cloudwatch_event_rule.periodic : {}
 }
 
 output "periodic_event_rule_name" {
   description = "The name of the CloudWatch Event Rule for periodic mode"
-  value       = local.periodic ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.name } : {}
+  value       = local.periodic_mode ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.name } : {}
 }
 
 output "periodic_event_rule_arn" {
   description = "The ARN of the CloudWatch Event Rule for periodic mode"
-  value       = local.periodic ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.arn } : {}
+  value       = local.periodic_mode ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.arn } : {}
 }
 
 output "periodic_schedule_expression" {
   description = "The schedule expression for periodic mode"
-  value       = local.periodic ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.schedule_expression } : {}
+  value       = local.periodic_mode ? { for region, rule in aws_cloudwatch_event_rule.periodic : region => rule.schedule_expression } : {}
+}
+
+# EventBridge Scheduler Mode Outputs
+output "eventbridge_schedule" {
+  description = "Complete AWS EventBridge Schedule resource with all attributes"
+  value       = local.schedule_mode ? aws_scheduler_schedule.schedule : {}
+}
+
+output "eventbridge_schedule_name" {
+  description = "The name of the EventBridge Schedule"
+  value       = local.schedule_mode ? { for region, schedule in aws_scheduler_schedule.schedule : region => schedule.name } : {}
+}
+
+output "eventbridge_schedule_arn" {
+  description = "The ARN of the EventBridge Schedule"
+  value       = local.schedule_mode ? { for region, schedule in aws_scheduler_schedule.schedule : region => schedule.arn } : {}
+}
+
+output "eventbridge_schedule_group_name" {
+  description = "The EventBridge Schedule group name"
+  value       = local.schedule_mode ? local.schedule_group_name : null
+}
+
+output "eventbridge_schedule_expression" {
+  description = "The schedule expression for schedule mode"
+  value       = local.schedule_mode ? local.schedule : null
+}
+
+output "eventbridge_schedule_timezone" {
+  description = "The timezone for the schedule"
+  value       = local.schedule_mode ? local.schedule_timezone : null
 }
 
 # CloudWatch Event Mode Outputs
 output "cloudwatch_event_rule" {
   description = "Complete AWS Cloudwatch Event Rule for cloudwatch event resource with all attributes"
-  value       = local.cloudwatch_event ? aws_cloudwatch_event_rule.cloudwatch_event : {}
+  value       = local.cloudwatch_event_mode ? aws_cloudwatch_event_rule.cloudwatch_event : {}
 }
 
 output "cloudwatch_event_rule_name" {
   description = "The name of the CloudWatch Event Rule for event mode"
-  value       = local.cloudwatch_event ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.name } : {}
+  value       = local.cloudwatch_event_mode ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.name } : {}
 }
 
 output "cloudwatch_event_rule_arn" {
   description = "The ARN of the CloudWatch Event Rule for event mode"
-  value       = local.cloudwatch_event ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.arn } : {}
+  value       = local.cloudwatch_event_mode ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.arn } : {}
 }
 
 output "cloudwatch_event_pattern" {
   description = "The event pattern for event mode"
-  value       = local.cloudwatch_event ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.event_pattern } : {}
+  value       = local.cloudwatch_event_mode ? { for region, rule in aws_cloudwatch_event_rule.cloudwatch_event : region => rule.event_pattern } : {}
 }
 
 # Config Rule Mode Outputs
 output "config_rule" {
   description = "Complete AWS Config Rule resource with all attributes"
-  value       = local.config_rule ? aws_config_config_rule.config_rule : {}
+  value       = local.config_rule_mode ? aws_config_config_rule.config_rule : {}
 }
 
 output "config_rule_name" {
   description = "The name of the AWS Config Rule"
-  value       = local.config_rule ? { for region, rule in aws_config_config_rule.config_rule : region => rule.name } : {}
+  value       = local.config_rule_mode ? { for region, rule in aws_config_config_rule.config_rule : region => rule.name } : {}
 }
 
 output "config_rule_arn" {
   description = "The ARN of the AWS Config Rule"
-  value       = local.config_rule ? { for region, rule in aws_config_config_rule.config_rule : region => rule.arn } : {}
+  value       = local.config_rule_mode ? { for region, rule in aws_config_config_rule.config_rule : region => rule.arn } : {}
 }
 
 output "config_rule_rule_id" {
   description = "The ID of the AWS Config Rule"
-  value       = local.config_rule ? { for region, rule in aws_config_config_rule.config_rule : region => rule.rule_id } : {}
+  value       = local.config_rule_mode ? { for region, rule in aws_config_config_rule.config_rule : region => rule.rule_id } : {}
 }

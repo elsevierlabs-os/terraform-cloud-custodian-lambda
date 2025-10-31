@@ -26,6 +26,7 @@ except ImportError:  # pragma: no cover
 
 ALLOWED_TYPES = {
     "periodic",
+    "schedule",
     "config-rule",
     "config-poll-rule",
     "cloudtrail",

@@ -198,30 +198,42 @@ def policy_contains_conditions(policy_instance):
     )
 
 
-def get_custodian_tags(mode):
+def get_custodian_tags(mode, policy_list):
     """Generate custodian-specific tags for a policy.
 
     Args:
         mode: The policy mode type
+        policy_list: List with one policy dict
 
     Returns:
         dict: Dictionary of custodian-specific tags
     """
-    return {"custodian-info": f"mode={mode}:version={version}"}
+    tags = {"custodian-info": f"mode={mode}:version={version}"}
+    
+    # Add schedule tag for EventBridge Scheduler mode
+    if mode == "schedule":
+        policy = policy_list[0]
+        prefix = policy.get("mode", {}).get("function-prefix", "custodian-")
+        name = policy.get("name", "")
+        group = policy.get("mode", {}).get("group-name", "default")
+        tags["custodian-schedule"] = f"name={prefix}{name}:group={group}"
+    
+    return tags
 
 
-def get_tags(mode, force_deploy=False):
+def get_tags(mode, policy_list, force_deploy=False):
     """Generate all tags for a policy.
 
     Args:
         mode: The policy mode type
+        policy_list: List with one policy dict
         force_deploy: Boolean indicating if force deployment is enabled
 
     Returns:
         dict: Combined dictionary of all tags
     """
     tags = {}
-    tags.update(get_custodian_tags(mode))
+    tags.update(get_custodian_tags(mode, policy_list))
     tags.update(get_force_deploy_tags(force_deploy))
     return tags
 
@@ -257,7 +269,7 @@ def process_policies(query):
     policy_list = validate_policy_structure(policies_dict)
     mode = validate_policy_mode(policy_list[0])
     policy_instance = validate_with_custodian(policies_dict)
-    tags = get_tags(mode, query.get("force_deploy", "false").lower() == "true")
+    tags = get_tags(mode, policy_list, query.get("force_deploy", "false").lower() == "true")
     policy_list = add_tags_to_policy(policy_list, tags)
     policy_list[0]["mode"]["role"] = query["role"]
     regions = get_policy_regions(policy_instance)

@@ -34,10 +34,17 @@ locals {
 
   mode_type = try(local.policy_obj.mode.type, null)
 
-  schedule = try(local.policy_obj.mode.schedule, null)
-  periodic = local.mode_type == "periodic" && local.schedule != null && local.schedule != ""
+  periodic_mode = local.mode_type == "periodic" && local.schedule != null && local.schedule != ""
+  schedule      = try(local.policy_obj.mode.schedule, null)
 
-  cloudwatch_event = contains([
+  schedule_mode           = local.mode_type == "schedule" && local.schedule != null && local.schedule != ""
+  schedule_timezone       = try(local.policy_obj.mode.timezone, "Etc/UTC")
+  schedule_group_name     = try(local.policy_obj.mode["group-name"], "default")
+  schedule_scheduler_role = try(local.policy_obj.mode["scheduler-role"], null)
+  schedule_start_date     = try(local.policy_obj.mode["start-date"], null)
+  schedule_end_date       = try(local.policy_obj.mode["end-date"], null)
+
+  cloudwatch_event_mode = contains([
     "cloudtrail",
     "guard-duty",
     "ec2-instance-state",
@@ -46,17 +53,17 @@ locals {
     "hub-finding",
   ], local.mode_type)
 
-  cloudwatch_event_pattern = local.cloudwatch_event ? try(
+  cloudwatch_event_pattern = local.cloudwatch_event_mode ? try(
     data.external.cloudwatch_event[0].result["event_pattern"],
     null
   ) : null
 
-  config_rule = contains([
+  config_rule_mode = contains([
     "config-rule",
     "config-poll-rule"
   ], local.mode_type)
 
-  config_rule_params = local.config_rule ? try(
+  config_rule_params = local.config_rule_mode ? try(
     data.external.config_rule[0].result,
     null
   ) : null
@@ -139,7 +146,7 @@ resource "aws_lambda_function" "custodian" {
 }
 
 resource "aws_cloudwatch_event_rule" "periodic" {
-  for_each = local.periodic ? toset(local.regions) : []
+  for_each = local.periodic_mode ? toset(local.regions) : []
   region   = each.key
 
   name                = local.function_name
@@ -152,7 +159,7 @@ resource "aws_cloudwatch_event_rule" "periodic" {
 }
 
 resource "aws_cloudwatch_event_target" "periodic" {
-  for_each = local.periodic ? toset(local.regions) : []
+  for_each = local.periodic_mode ? toset(local.regions) : []
   region   = each.key
 
   rule = aws_cloudwatch_event_rule.periodic[each.key].name
@@ -164,7 +171,7 @@ resource "aws_cloudwatch_event_target" "periodic" {
 }
 
 resource "aws_lambda_permission" "periodic" {
-  for_each = local.periodic ? toset(local.regions) : []
+  for_each = local.periodic_mode ? toset(local.regions) : []
   region   = each.key
 
   statement_id  = local.function_name
@@ -178,8 +185,56 @@ resource "aws_lambda_permission" "periodic" {
   }
 }
 
+resource "aws_scheduler_schedule" "schedule" {
+  for_each = local.schedule_mode ? toset(local.regions) : []
+
+  name       = local.function_name
+  group_name = local.schedule_group_name
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression          = local.schedule
+  schedule_expression_timezone = local.schedule_timezone
+  description                  = local.description
+  state                        = "ENABLED"
+
+  start_date = local.schedule_start_date
+  end_date   = local.schedule_end_date
+
+  target {
+    arn      = aws_lambda_function.custodian[each.key].arn
+    role_arn = local.schedule_scheduler_role
+
+    retry_policy {
+      maximum_retry_attempts = 0
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_lambda_permission" "schedule" {
+  for_each = local.schedule_mode ? toset(local.regions) : []
+
+  statement_id  = "${local.function_name}-scheduler"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.custodian[each.key].function_name
+  principal     = "scheduler.amazonaws.com"
+  source_arn    = aws_scheduler_schedule.schedule[each.key].arn
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
 data "external" "cloudwatch_event" {
-  count = local.cloudwatch_event ? 1 : 0
+  count = local.cloudwatch_event_mode ? 1 : 0
   program = [
     "python3",
     "${path.module}/ops/get_cloudwatch_event_pattern.py"
@@ -192,7 +247,7 @@ data "external" "cloudwatch_event" {
 }
 
 resource "aws_cloudwatch_event_rule" "cloudwatch_event" {
-  for_each = local.cloudwatch_event ? toset(local.regions) : []
+  for_each = local.cloudwatch_event_mode ? toset(local.regions) : []
   region   = each.key
 
   name          = local.function_name
@@ -205,7 +260,7 @@ resource "aws_cloudwatch_event_rule" "cloudwatch_event" {
 }
 
 resource "aws_cloudwatch_event_target" "cloudwatch_event" {
-  for_each = local.cloudwatch_event ? toset(local.regions) : []
+  for_each = local.cloudwatch_event_mode ? toset(local.regions) : []
   region   = each.key
 
   rule = aws_cloudwatch_event_rule.cloudwatch_event[each.key].name
@@ -217,7 +272,7 @@ resource "aws_cloudwatch_event_target" "cloudwatch_event" {
 }
 
 resource "aws_lambda_permission" "cloudwatch_event" {
-  for_each = local.cloudwatch_event ? toset(local.regions) : []
+  for_each = local.cloudwatch_event_mode ? toset(local.regions) : []
   region   = each.key
 
   statement_id  = local.function_name
@@ -232,7 +287,7 @@ resource "aws_lambda_permission" "cloudwatch_event" {
 }
 
 data "external" "config_rule" {
-  count = local.config_rule ? 1 : 0
+  count = local.config_rule_mode ? 1 : 0
   program = [
     "python3",
     "${path.module}/ops/get_config_rule_params.py"
@@ -244,7 +299,7 @@ data "external" "config_rule" {
 }
 
 resource "aws_config_config_rule" "config_rule" {
-  for_each = local.config_rule ? toset(local.regions) : []
+  for_each = local.config_rule_mode ? toset(local.regions) : []
   region   = each.key
 
   name        = local.config_rule_params["ConfigRuleName"]
@@ -274,7 +329,7 @@ resource "aws_config_config_rule" "config_rule" {
 }
 
 resource "aws_lambda_permission" "config_rule" {
-  for_each = local.config_rule ? toset(local.regions) : []
+  for_each = local.config_rule_mode ? toset(local.regions) : []
   region   = each.key
 
   statement_id  = local.function_name
