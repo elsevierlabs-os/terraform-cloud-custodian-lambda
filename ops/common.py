@@ -27,13 +27,14 @@ except ImportError:  # pragma: no cover
 ALLOWED_TYPES = {
     "periodic",
     "schedule",
-    "config-rule",
-    "config-poll-rule",
-    "cloudtrail",
     "phd",
+    "cloudtrail",
     "ec2-instance-state",
     "asg-instance-state",
-    "guard-duty",
+    "guard-duty"
+    "config-poll-rule",
+    "config-rule",
+    "hub-finding"
 }
 
 

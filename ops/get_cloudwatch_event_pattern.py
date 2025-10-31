@@ -36,8 +36,8 @@ except ImportError:  # pragma: no cover
 
 
 ALLOWED_TYPES = {
+    "phd"
     "cloudtrail",
-    "phd",
     "ec2-instance-state",
     "asg-instance-state",
     "guard-duty",
