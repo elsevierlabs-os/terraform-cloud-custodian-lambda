@@ -38,6 +38,25 @@ policies:
 """
 SIMPLE_PERIODIC_POLICIES_DICT = yaml_str_to_dict(SIMPLE_PERIODIC_POLICIES_YAML)
 SIMPLE_PERIODIC_POLICY_DICT = SIMPLE_PERIODIC_POLICIES_DICT["policies"][0]
+SCHEDULE_POLICIES_YAML = """
+---
+policies:
+  - name: test-policy
+    resource: ec2
+    mode:
+      type: schedule
+      schedule: rate(1 day)
+      role: "arn:aws:iam::123456789012:role/custodian-role"
+      group-name: my-schedule-group
+    filters:
+    - and:
+      - type: image-age
+        days: 7
+    actions:
+    - stop
+"""
+SCHEDULE_POLICIES_DICT = yaml_str_to_dict(SCHEDULE_POLICIES_YAML)
+SCHEDULE_POLICY_DICT = SCHEDULE_POLICIES_DICT["policies"][0]
 TOP_LEVEL_POLICY_ORDER = ["name", "resource", "mode", "filters", "actions"]
 MODE_LEVEL_POLICY_ORDER = ["type", "schedule", "role"]
 

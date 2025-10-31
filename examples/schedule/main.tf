@@ -53,58 +53,23 @@ data "aws_iam_policy_document" "custodian" {
   statement {
 
     actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "${module.cloud_custodian_s3.s3_bucket_arn}/*",
-    ]
-  }
-
-  statement {
-
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      module.cloud_custodian_s3.s3_bucket_arn,
-    ]
-  }
-
-  statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
       "logs:PutLogEvents",
-    ]
-
-    resources = [
-      "arn:aws:logs:*:*:*",
-    ]
-  }
-
-  statement {
-
-    actions = [
-      "ec2:DescribeImages",
-      "ec2:DescribeInstances",
-      "ec2:DescribeSnapshots",
-    ]
-
-    resources = [
-      "*",
-    ]
-  }
-
-  statement {
-    actions = [
+      "logs:DescribeLogGroups",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup",
       "cloudwatch:PutMetricData",
     ]
 
-    resources = [
-      "*",
+    resources = ["*"]
+  }
+
+  statement {
+
+    actions = [
+      "ec2:DescribeImages"
     ]
+
+    resources = ["*"]
   }
 }
 
@@ -145,12 +110,11 @@ data "aws_iam_policy_document" "scheduler" {
   }
 }
 
-# EventBridge Scheduler group
 resource "aws_scheduler_schedule_group" "custodian" {
-  name = "${local.prefix}schedule-${local.account_id}"
+  name = "${local.prefix}schedule-group"
 }
 
-module "custodian_policy" {
+module "cloud_custodian_lambda" {
   source = "../../"
 
   regions = [local.region]
@@ -160,10 +124,8 @@ module "custodian_policy" {
   }
 
   policies = templatefile("${path.module}/templates/policies.yaml.tpl", {
-    prefix             = local.prefix
-    account_id         = local.account_id
-    scheduler_role_arn = aws_iam_role.scheduler.arn
-    schedule_group     = aws_scheduler_schedule_group.custodian.name
+    prefix     = local.prefix
+    account_id = local.account_id
   })
 
   depends_on = [

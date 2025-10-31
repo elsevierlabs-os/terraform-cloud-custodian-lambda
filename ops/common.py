@@ -31,10 +31,10 @@ ALLOWED_TYPES = {
     "cloudtrail",
     "ec2-instance-state",
     "asg-instance-state",
-    "guard-duty"
+    "guard-duty",
     "config-poll-rule",
     "config-rule",
-    "hub-finding"
+    "hub-finding",
 }
 
 

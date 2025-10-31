@@ -15,7 +15,7 @@ policies:
       output_dir: s3://${prefix}periodic-${account_id}/output
       cache_dir: s3://${prefix}periodic-${account_id}/cache
       cache_period: 15
-    schedule: cron(0 11 ? * 3 *)
+    schedule: rate(5 minutes)
     role: "${prefix}periodic"
     timeout: 300
     memory: 256

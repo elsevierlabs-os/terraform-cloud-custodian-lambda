@@ -16,6 +16,7 @@ from tests.ops.fixtures import (
     EXEC_OPTIONS,
     SIMPLE_PERIODIC_POLICIES_YAML,
     SIMPLE_PERIODIC_POLICIES_DICT,
+    SCHEDULE_POLICY_DICT,
     DETAILED_POLICIES_DICT,
     DETAILED_POLICIES_YAML,
     DETAILED_POLICY_DICT,
@@ -84,6 +85,25 @@ def test_add_handler_and_config_to_archive_config_assertion_error():
 
     with pytest.raises(RuntimeError):
         add_handler_and_config_to_archive(mock_archive, policy_list, exec_options)
+
+
+def test_get_custodian_tags_schedule_mode():
+    """Test get_custodian_tags with schedule mode to generate custodian-schedule tag."""
+    from ops.package_lambda_policy import get_custodian_tags
+
+    policy_list = [SCHEDULE_POLICY_DICT]
+    function_name = f"custodian-{SCHEDULE_POLICY_DICT['name']}"
+    query = {"function_name": function_name}
+
+    tags = get_custodian_tags(policy_list, query)
+
+    assert "custodian-info" in tags
+    assert "mode=schedule:version=" in tags["custodian-info"]
+    assert "custodian-schedule" in tags
+    assert (
+        tags["custodian-schedule"]
+        == f"name={function_name}:group={SCHEDULE_POLICY_DICT['mode']['group-name']}"
+    )
 
 
 def test_process_policies_with_packages_and_tags():

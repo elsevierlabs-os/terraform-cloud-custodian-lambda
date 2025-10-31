@@ -120,17 +120,17 @@ output "eventbridge_schedule_arn" {
 
 output "eventbridge_schedule_group_name" {
   description = "The EventBridge Schedule group name"
-  value       = local.schedule_mode ? local.schedule_group_name : null
+  value       = local.schedule_mode ? { for region, schedule in aws_scheduler_schedule.schedule : region => schedule.group_name } : {}
 }
 
 output "eventbridge_schedule_expression" {
   description = "The schedule expression for schedule mode"
-  value       = local.schedule_mode ? local.schedule : null
+  value       = local.schedule_mode ? { for region, schedule in aws_scheduler_schedule.schedule : region => schedule.schedule_expression } : {}
 }
 
 output "eventbridge_schedule_timezone" {
   description = "The timezone for the schedule"
-  value       = local.schedule_mode ? local.schedule_timezone : null
+  value       = local.schedule_mode ? { for region, schedule in aws_scheduler_schedule.schedule : region => schedule.schedule_expression_timezone } : {}
 }
 
 # CloudWatch Event Mode Outputs

@@ -11,14 +11,14 @@ policies:
     execution-options:
       metrics_enabled: true
       dryrun: false
-      log_group: "/cloud-custodian/${account_id}/"
+      log_group: "/cloud-custodian/policies"
       output_dir: s3://${prefix}schedule-${account_id}/output
       cache_dir: s3://${prefix}schedule-${account_id}/cache
       cache_period: 15
-    schedule: cron(0 11 ? * 3 *)
+    schedule: rate(5 minutes)
     timezone: Europe/London
-    group-name: ${schedule_group}
-    scheduler-role: ${scheduler_role_arn}
+    group-name: ${prefix}schedule-group
+    scheduler-role: arn:aws:iam::${account_id}:role/${prefix}scheduler
     role: "${prefix}schedule"
     timeout: 300
     memory: 256

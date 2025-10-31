@@ -198,43 +198,42 @@ def policy_contains_conditions(policy_instance):
     )
 
 
-def get_custodian_tags(mode, policy_list):
+def get_custodian_tags(policy_list, query):
     """Generate custodian-specific tags for a policy.
 
     Args:
-        mode: The policy mode type
         policy_list: List with one policy dict
+        query: Dictionary with query parameters
 
     Returns:
         dict: Dictionary of custodian-specific tags
     """
-    tags = {"custodian-info": f"mode={mode}:version={version}"}
-    
-    # Add schedule tag for EventBridge Scheduler mode
-    if mode == "schedule":
-        policy = policy_list[0]
-        prefix = policy.get("mode", {}).get("function-prefix", "custodian-")
-        name = policy.get("name", "")
-        group = policy.get("mode", {}).get("group-name", "default")
-        tags["custodian-schedule"] = f"name={prefix}{name}:group={group}"
-    
+    policy_dict = policy_list[0]
+    mode = policy_dict["mode"]
+    mode_type = mode["type"]
+    tags = {"custodian-info": f"mode={mode_type}:version={version}"}
+
+    if mode_type == "schedule":
+        group = mode.get("group-name", "default")
+        function_name = query["function_name"]
+        tags["custodian-schedule"] = f"name={function_name}:group={group}"
+
     return tags
 
 
-def get_tags(mode, policy_list, force_deploy=False):
+def get_tags(policy_list, query):
     """Generate all tags for a policy.
 
     Args:
-        mode: The policy mode type
         policy_list: List with one policy dict
-        force_deploy: Boolean indicating if force deployment is enabled
+        query: Dictionary with query parameters
 
     Returns:
         dict: Combined dictionary of all tags
     """
     tags = {}
-    tags.update(get_custodian_tags(mode, policy_list))
-    tags.update(get_force_deploy_tags(force_deploy))
+    tags.update(get_custodian_tags(policy_list, query))
+    tags.update(get_force_deploy_tags(query.get("force_deploy", "false").lower() == "true"))
     return tags
 
 
@@ -267,9 +266,9 @@ def process_policies(query):
     """
     policies_dict = parse_policies(query)
     policy_list = validate_policy_structure(policies_dict)
-    mode = validate_policy_mode(policy_list[0])
+    validate_policy_mode(policy_list[0])
     policy_instance = validate_with_custodian(policies_dict)
-    tags = get_tags(mode, policy_list, query.get("force_deploy", "false").lower() == "true")
+    tags = get_tags(policy_list, query)
     policy_list = add_tags_to_policy(policy_list, tags)
     policy_list[0]["mode"]["role"] = query["role"]
     regions = get_policy_regions(policy_instance)
