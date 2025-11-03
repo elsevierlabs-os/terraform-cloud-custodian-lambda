@@ -20,10 +20,6 @@ policies:
     group-name: ${prefix}schedule-group
     scheduler-role: arn:aws:iam::${account_id}:role/${prefix}scheduler
     role: "${prefix}schedule"
-    timeout: 300
-    memory: 256
-    tags:
-      Test: 'true'
   resource: ami
   filters:
   - and: *image-age-filters
