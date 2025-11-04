@@ -52,7 +52,7 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 
-def add_handler_and_config_to_archive(archive, policy_list, exec_options):
+def get_archive(archive, policy_list, exec_options):
     """Add handler template and config to archive.
 
     Args:
@@ -112,7 +112,7 @@ def process_lambda_package(query, policy_list, regions, exec_options, packages):
         Exception: If any step in the packaging process fails
     """
     archive = create_custodian_archive(packages=packages)
-    archive = add_handler_and_config_to_archive(archive, policy_list, exec_options)
+    archive = get_archive(archive, policy_list, exec_options)
     archive.close()
 
     try:

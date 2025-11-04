@@ -204,7 +204,7 @@ resource "aws_scheduler_schedule" "schedule" {
   end_date   = local.schedule_end_date
 
   target {
-    arn      = aws_lambda_function.custodian[each.key].qualified_arn
+    arn      = aws_lambda_function.custodian[each.key].arn
     role_arn = local.schedule_scheduler_role
   }
 
