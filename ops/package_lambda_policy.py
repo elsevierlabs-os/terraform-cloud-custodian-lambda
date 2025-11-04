@@ -64,11 +64,6 @@ def add_handler_and_config_to_archive(archive, policy_list, exec_options):
         PythonPackageArchive: Archive with handler and config added
     """
     try:
-        archive.add_contents("custodian_policy.py", PolicyHandlerTemplate)
-    except AssertionError as e:
-        raise RuntimeError(f"Failed to add handler template: {e}")
-
-    try:
         config_data = {
             "execution-options": exec_options,
             "policies": policy_list,
@@ -76,6 +71,11 @@ def add_handler_and_config_to_archive(archive, policy_list, exec_options):
         archive.add_contents("config.json", json.dumps(config_data, indent=2))
     except AssertionError as e:
         raise RuntimeError(f"Failed to add config.json: {e}")
+
+    try:
+        archive.add_contents("custodian_policy.py", PolicyHandlerTemplate)
+    except AssertionError as e:
+        raise RuntimeError(f"Failed to add handler template: {e}")
 
     return archive
 
