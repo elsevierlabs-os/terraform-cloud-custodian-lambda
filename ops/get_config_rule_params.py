@@ -37,7 +37,7 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 
-ALLOWED_TYPES = ("config-rule", "config-poll-rule")
+ALLOWED_TYPES = {"config-rule", "config-poll-rule"}
 
 
 def create_policy_objects(policy_dict):

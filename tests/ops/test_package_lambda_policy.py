@@ -16,16 +16,17 @@ from tests.ops.fixtures import (
     EXEC_OPTIONS,
     SIMPLE_PERIODIC_POLICIES_YAML,
     SIMPLE_PERIODIC_POLICIES_DICT,
+    SCHEDULE_POLICY_DICT,
     DETAILED_POLICIES_DICT,
     DETAILED_POLICIES_YAML,
     DETAILED_POLICY_DICT,
 )
 
 
-def test_add_handler_and_config_to_archive_success():
-    """Test successful add_handler_and_config_to_archive."""
+def test_get_archive_success():
+    """Test successful get_archive."""
     from ops.package_lambda_policy import (
-        add_handler_and_config_to_archive,
+        get_archive,
         create_custodian_archive,
     )
 
@@ -34,7 +35,7 @@ def test_add_handler_and_config_to_archive_success():
     policy_list = [SIMPLE_PERIODIC_POLICY_DICT]
     exec_options = EXEC_OPTIONS
 
-    result = add_handler_and_config_to_archive(archive, policy_list, exec_options)
+    result = get_archive(archive, policy_list, exec_options)
     assert result == archive
 
     archive.close()
@@ -54,9 +55,9 @@ def test_add_handler_and_config_to_archive_success():
     archive.remove()
 
 
-def test_add_handler_and_config_to_archive_handler_assertion_error():
-    """Test add_handler_and_config_to_archive with AssertionError on handler template."""
-    from ops.package_lambda_policy import add_handler_and_config_to_archive
+def test_get_archive_handler_assertion_error():
+    """Test get_archive with AssertionError on handler template."""
+    from ops.package_lambda_policy import get_archive
     from unittest.mock import MagicMock
 
     # Create mock archive that raises AssertionError on first add_contents call
@@ -67,12 +68,12 @@ def test_add_handler_and_config_to_archive_handler_assertion_error():
     exec_options = EXEC_OPTIONS
 
     with pytest.raises(RuntimeError):
-        add_handler_and_config_to_archive(mock_archive, policy_list, exec_options)
+        get_archive(mock_archive, policy_list, exec_options)
 
 
-def test_add_handler_and_config_to_archive_config_assertion_error():
-    """Test add_handler_and_config_to_archive with AssertionError on config.json."""
-    from ops.package_lambda_policy import add_handler_and_config_to_archive
+def test_get_archive_config_assertion_error():
+    """Test get_archive with AssertionError on config.json."""
+    from ops.package_lambda_policy import get_archive
     from unittest.mock import MagicMock
 
     # Create mock archive that succeeds first call but fails second
@@ -83,7 +84,26 @@ def test_add_handler_and_config_to_archive_config_assertion_error():
     exec_options = EXEC_OPTIONS
 
     with pytest.raises(RuntimeError):
-        add_handler_and_config_to_archive(mock_archive, policy_list, exec_options)
+        get_archive(mock_archive, policy_list, exec_options)
+
+
+def test_get_custodian_tags_schedule_mode():
+    """Test get_custodian_tags with schedule mode to generate custodian-schedule tag."""
+    from ops.package_lambda_policy import get_custodian_tags
+
+    policy_list = [SCHEDULE_POLICY_DICT]
+    function_name = f"custodian-{SCHEDULE_POLICY_DICT['name']}"
+    query = {"function_name": function_name}
+
+    tags = get_custodian_tags(policy_list, query)
+
+    assert "custodian-info" in tags
+    assert "mode=schedule:version=" in tags["custodian-info"]
+    assert "custodian-schedule" in tags
+    assert (
+        tags["custodian-schedule"]
+        == f"name={function_name}:group={SCHEDULE_POLICY_DICT['mode']['group-name']}"
+    )
 
 
 def test_process_policies_with_packages_and_tags():

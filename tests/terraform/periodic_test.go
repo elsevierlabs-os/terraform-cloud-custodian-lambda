@@ -29,7 +29,7 @@ func TestPeriodicExample(t *testing.T) {
 	assert.Equal(t, "custodian-dev-periodic", periodicEventRuleName, "periodic_event_rule_name is not correct")
 
 	periodicScheduleExpression := terraform.Output(t, terraformOptions, "periodic_schedule_expression")
-	assert.Equal(t, "cron(0 11 ? * 3 *)", periodicScheduleExpression, "periodic_schedule_expression is not correct")
+	assert.Equal(t, "rate(5 minutes)", periodicScheduleExpression, "periodic_schedule_expression is not correct")
 
 	lambdaRole := terraform.Output(t, terraformOptions, "lambda_function_role")
 	assert.Contains(t, lambdaRole, "arn:aws:iam::", "lambda_function_role should be resolved to a full ARN")

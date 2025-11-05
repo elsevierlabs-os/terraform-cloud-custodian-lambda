@@ -52,7 +52,7 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 
-def add_handler_and_config_to_archive(archive, policy_list, exec_options):
+def get_archive(archive, policy_list, exec_options):
     """Add handler template and config to archive.
 
     Args:
@@ -64,11 +64,6 @@ def add_handler_and_config_to_archive(archive, policy_list, exec_options):
         PythonPackageArchive: Archive with handler and config added
     """
     try:
-        archive.add_contents("custodian_policy.py", PolicyHandlerTemplate)
-    except AssertionError as e:
-        raise RuntimeError(f"Failed to add handler template: {e}")
-
-    try:
         config_data = {
             "execution-options": exec_options,
             "policies": policy_list,
@@ -76,6 +71,11 @@ def add_handler_and_config_to_archive(archive, policy_list, exec_options):
         archive.add_contents("config.json", json.dumps(config_data, indent=2))
     except AssertionError as e:
         raise RuntimeError(f"Failed to add config.json: {e}")
+
+    try:
+        archive.add_contents("custodian_policy.py", PolicyHandlerTemplate)
+    except AssertionError as e:
+        raise RuntimeError(f"Failed to add handler template: {e}")
 
     return archive
 
@@ -112,7 +112,7 @@ def process_lambda_package(query, policy_list, regions, exec_options, packages):
         Exception: If any step in the packaging process fails
     """
     archive = create_custodian_archive(packages=packages)
-    archive = add_handler_and_config_to_archive(archive, policy_list, exec_options)
+    archive = get_archive(archive, policy_list, exec_options)
     archive.close()
 
     try:
@@ -198,31 +198,42 @@ def policy_contains_conditions(policy_instance):
     )
 
 
-def get_custodian_tags(mode):
+def get_custodian_tags(policy_list, query):
     """Generate custodian-specific tags for a policy.
 
     Args:
-        mode: The policy mode type
+        policy_list: List with one policy dict
+        query: Dictionary with query parameters
 
     Returns:
         dict: Dictionary of custodian-specific tags
     """
-    return {"custodian-info": f"mode={mode}:version={version}"}
+    policy_dict = policy_list[0]
+    mode = policy_dict["mode"]
+    mode_type = mode["type"]
+    tags = {"custodian-info": f"mode={mode_type}:version={version}"}
+
+    if mode_type == "schedule":
+        group = mode.get("group-name", "default")
+        function_name = query["function_name"]
+        tags["custodian-schedule"] = f"name={function_name}:group={group}"
+
+    return tags
 
 
-def get_tags(mode, force_deploy=False):
+def get_tags(policy_list, query):
     """Generate all tags for a policy.
 
     Args:
-        mode: The policy mode type
-        force_deploy: Boolean indicating if force deployment is enabled
+        policy_list: List with one policy dict
+        query: Dictionary with query parameters
 
     Returns:
         dict: Combined dictionary of all tags
     """
     tags = {}
-    tags.update(get_custodian_tags(mode))
-    tags.update(get_force_deploy_tags(force_deploy))
+    tags.update(get_custodian_tags(policy_list, query))
+    tags.update(get_force_deploy_tags(query.get("force_deploy", "false").lower() == "true"))
     return tags
 
 
@@ -255,9 +266,9 @@ def process_policies(query):
     """
     policies_dict = parse_policies(query)
     policy_list = validate_policy_structure(policies_dict)
-    mode = validate_policy_mode(policy_list[0])
+    validate_policy_mode(policy_list[0])
     policy_instance = validate_with_custodian(policies_dict)
-    tags = get_tags(mode, query.get("force_deploy", "false").lower() == "true")
+    tags = get_tags(policy_list, query)
     policy_list = add_tags_to_policy(policy_list, tags)
     policy_list[0]["mode"]["role"] = query["role"]
     regions = get_policy_regions(policy_instance)
