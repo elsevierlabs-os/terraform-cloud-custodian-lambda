@@ -6,7 +6,7 @@ vars:
 policies:
 - name: ami-age
   mode:
-    type: periodic
+    type: schedule
     function-prefix: "${prefix}"
     execution-options:
       metrics_enabled: true
@@ -16,18 +16,16 @@ policies:
       cache_dir: s3://${prefix}multi-policies-${account_id}/cache
       cache_period: 15
     schedule: cron(0 11 ? * 3 *)
-    role: "${prefix}multi-policies"
-    timeout: 300
-    memory: 256
-    tags:
-      Test: 'true'
+    timezone: Europe/London
+    scheduler-role: ${prefix}multi-policies-scheduler
+    role: ${prefix}multi-policies-lambda
   resource: ami
   filters:
   - and: *image-age-filters
 
 - name: ec2-ami-age
   mode:
-    type: periodic
+    type: schedule
     function-prefix: "${prefix}"
     execution-options:
       metrics_enabled: true
@@ -37,12 +35,32 @@ policies:
       cache_dir: s3://${prefix}multi-policies-${account_id}/cache
       cache_period: 15
     schedule: cron(0 11 ? * 3 *)
-    role: "${prefix}multi-policies"
-    timeout: 300
-    memory: 256
-    tags:
-      Test: 'true'
+    timezone: Europe/London
+    scheduler-role: ${prefix}multi-policies-scheduler
+    role: ${prefix}multi-policies-lambda
   resource: ec2
   filters:
   - and: *image-age-filters
   - "State.Name": "running"
+
+- name: ec2-public-ami
+  mode:
+    type: ec2-instance-state
+    function-prefix: "${prefix}"
+    execution-options:
+      metrics_enabled: true
+      dryrun: false
+      log_group: "/cloud-custodian/policies"
+      output_dir: s3://${prefix}multi-policies-${account_id}/output
+      cache_dir: s3://${prefix}multi-policies-${account_id}/cache
+      cache_period: 15
+    role: "${prefix}multi-policies-lambda"
+    events:
+    - pending
+    - running
+  resource: ec2
+  filters:
+  - and:
+    - type: image
+      key: Public
+      value: true

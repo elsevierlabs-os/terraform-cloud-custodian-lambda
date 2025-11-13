@@ -13,7 +13,7 @@ module "cloud_custodian_s3" {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = "${local.prefix}multi-policies"
+  name               = "${local.prefix}multi-policies-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -73,6 +73,43 @@ data "aws_iam_policy_document" "custodian" {
   }
 }
 
+resource "aws_iam_role" "scheduler" {
+  name               = "${local.prefix}multi-policies-scheduler"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "scheduler.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "scheduler" {
+  role = aws_iam_role.scheduler.id
+
+  policy = data.aws_iam_policy_document.scheduler.json
+}
+
+data "aws_iam_policy_document" "scheduler" {
+  statement {
+    actions = [
+      "lambda:InvokeFunction",
+    ]
+
+    resources = [
+      "arn:aws:lambda:*:${local.account_id}:function:${local.prefix}*",
+    ]
+  }
+}
+
 module "custodian_policies" {
   source = "../../modules/cloud-custodian-lambda-policies"
 
@@ -84,6 +121,7 @@ module "custodian_policies" {
 
   depends_on = [
     module.cloud_custodian_s3,
-    aws_iam_role.custodian
+    aws_iam_role.custodian,
+    aws_iam_role.scheduler
   ]
 }

@@ -14,7 +14,7 @@ module "cloud_custodian_s3" {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = "${local.prefix}schedule"
+  name               = "${local.prefix}schedule-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -74,7 +74,7 @@ data "aws_iam_policy_document" "custodian" {
 }
 
 resource "aws_iam_role" "scheduler" {
-  name               = "${local.prefix}scheduler"
+  name               = "${local.prefix}schedule-scheduler"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
