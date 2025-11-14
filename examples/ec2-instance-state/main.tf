@@ -102,7 +102,7 @@ module "cloud_custodian_lambda" {
           "cache_dir": "s3://${local.prefix}ec2-instance-state-${local.account_id}/cache",
           "cache_period": 15
         },
-        "role": "arn:aws:iam::${local.account_id}:role/custodian-dev-ec2-instance-state-lambda",
+        "role": "arn:aws:iam::${local.account_id}:role/${local.prefix}ec2-instance-state-lambda",
         "events": [
           "terminated"
         ]
