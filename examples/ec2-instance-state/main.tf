@@ -14,7 +14,7 @@ module "cloud_custodian_s3" {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = "${local.prefix}ec2-instance-state"
+  name               = "${local.prefix}ec2-instance-state-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -102,7 +102,7 @@ module "cloud_custodian_lambda" {
           "cache_dir": "s3://${local.prefix}ec2-instance-state-${local.account_id}/cache",
           "cache_period": 15
         },
-        "role": "arn:aws:iam::${local.account_id}:role/custodian-dev-ec2-instance-state",
+        "role": "arn:aws:iam::${local.account_id}:role/custodian-dev-ec2-instance-state-lambda",
         "events": [
           "terminated"
         ]

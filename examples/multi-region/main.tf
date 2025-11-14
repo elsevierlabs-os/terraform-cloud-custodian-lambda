@@ -13,7 +13,7 @@ module "cloud_custodian_s3" {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = "${local.prefix}multi-region"
+  name               = "${local.prefix}multi-region-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
