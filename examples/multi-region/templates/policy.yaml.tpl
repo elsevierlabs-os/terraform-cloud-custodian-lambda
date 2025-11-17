@@ -16,7 +16,7 @@ policies:
       cache_dir: s3://${prefix}multi-region-${account_id}/cache
       cache_period: 15
     schedule: cron(0 11 ? * 3 *)
-    role: "${prefix}multi-region"
+    role: "${prefix}multi-region-lambda"
     timeout: 300
     memory: 256
     tags:

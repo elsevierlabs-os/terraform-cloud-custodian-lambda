@@ -6,7 +6,7 @@ locals {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = local.lambda_name
+  name               = "${local.lambda_name}-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

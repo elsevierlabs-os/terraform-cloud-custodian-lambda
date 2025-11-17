@@ -16,7 +16,7 @@ policies:
       cache_dir: s3://${prefix}periodic-${account_id}/cache
       cache_period: 15
     schedule: rate(5 minutes)
-    role: "${prefix}periodic"
+    role: "${prefix}periodic-lambda"
     timeout: 300
     memory: 256
     tags:

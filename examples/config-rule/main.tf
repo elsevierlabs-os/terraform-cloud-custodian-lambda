@@ -14,7 +14,7 @@ module "cloud_custodian_s3" {
 }
 
 resource "aws_iam_role" "custodian" {
-  name               = "${local.prefix}config-rule"
+  name               = "${local.prefix}config-rule-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -124,7 +124,7 @@ module "cloud_custodian_lambda" {
           "cache_dir": "s3://${local.prefix}config-rule-${local.account_id}/cache",
           "cache_period": 15
         },
-        "role": "arn:aws:iam::${local.account_id}:role/${local.prefix}config-rule"
+        "role": "arn:aws:iam::${local.account_id}:role/${local.prefix}config-rule-lambda"
       },
       "resource": "ec2",
       "filters": [

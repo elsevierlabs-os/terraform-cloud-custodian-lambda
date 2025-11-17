@@ -18,8 +18,8 @@ policies:
     schedule: rate(5 minutes)
     timezone: Europe/London
     group-name: ${prefix}schedule-group
-    scheduler-role: arn:aws:iam::${account_id}:role/${prefix}scheduler
-    role: "${prefix}schedule"
+    scheduler-role: ${prefix}schedule-scheduler
+    role: ${prefix}schedule-lambda
   resource: ami
   filters:
   - and: *image-age-filters

@@ -37,12 +37,15 @@ locals {
   periodic_mode = local.mode_type == "periodic" && local.schedule != null && local.schedule != ""
   schedule      = try(local.policy_obj.mode.schedule, null)
 
-  schedule_mode           = local.mode_type == "schedule" && local.schedule != null && local.schedule != ""
-  schedule_timezone       = try(local.policy_obj.mode.timezone, "Etc/UTC")
-  schedule_group_name     = try(local.policy_obj.mode["group-name"], "default")
-  schedule_scheduler_role = try(local.policy_obj.mode["scheduler-role"], null)
-  schedule_start_date     = try(local.policy_obj.mode["start-date"], null)
-  schedule_end_date       = try(local.policy_obj.mode["end-date"], null)
+  schedule_mode        = local.mode_type == "schedule" && local.schedule != null && local.schedule != ""
+  schedule_timezone    = try(local.policy_obj.mode.timezone, "Etc/UTC")
+  schedule_group_name  = try(local.policy_obj.mode["group-name"], "default")
+  scheduler_role_input = try(local.policy_obj.mode["scheduler-role"], null)
+  scheduler_role = local.scheduler_role_input != null ? (
+    startswith(local.scheduler_role_input, "arn:") ? local.scheduler_role_input : data.aws_iam_role.scheduler_role[0].arn
+  ) : null
+  schedule_start_date = try(local.policy_obj.mode["start-date"], null)
+  schedule_end_date   = try(local.policy_obj.mode["end-date"], null)
 
   cloudwatch_event_mode = contains([
     "cloudtrail",
@@ -185,8 +188,14 @@ resource "aws_lambda_permission" "periodic" {
   }
 }
 
+data "aws_iam_role" "scheduler_role" {
+  count = local.scheduler_role_input != null && !startswith(local.scheduler_role_input, "arn:") ? 1 : 0
+  name  = local.scheduler_role_input
+}
+
 resource "aws_scheduler_schedule" "schedule" {
   for_each = local.schedule_mode ? toset(local.regions) : []
+  region   = each.key
 
   name       = local.function_name
   group_name = local.schedule_group_name
@@ -205,7 +214,7 @@ resource "aws_scheduler_schedule" "schedule" {
 
   target {
     arn      = aws_lambda_function.custodian[each.key].arn
-    role_arn = local.schedule_scheduler_role
+    role_arn = local.scheduler_role
   }
 
   lifecycle {
@@ -215,8 +224,9 @@ resource "aws_scheduler_schedule" "schedule" {
 
 resource "aws_lambda_permission" "schedule" {
   for_each = local.schedule_mode ? toset(local.regions) : []
+  region   = each.key
 
-  statement_id  = "${local.function_name}-scheduler"
+  statement_id  = local.function_name
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.custodian[each.key].function_name
   principal     = "scheduler.amazonaws.com"
