@@ -8,7 +8,6 @@ import os
 import io
 import pytest
 from unittest.mock import patch
-from c7n_mailer import deploy as c7n_mailer_deploy
 
 from ops.package_lambda_mailer import process_lambda_package, main
 from tests.ops.fixtures import (
@@ -55,7 +54,7 @@ def test_process_lambda_package_oserror():
         "mailer_config": json.dumps(complete_mailer_config()),
     }
 
-    with patch.object(c7n_mailer_deploy, "get_archive") as mock_get_archive:
+    with patch("ops.package_lambda_mailer.get_archive") as mock_get_archive:
         mock_get_archive.side_effect = OSError("Permission denied")
 
         with pytest.raises(RuntimeError):
@@ -75,7 +74,7 @@ def test_process_lambda_package_assertion_error():
     mock_archive = MagicMock()
     mock_archive.get_checksum.side_effect = AssertionError("Invalid archive state")
 
-    with patch.object(c7n_mailer_deploy, "get_archive", return_value=mock_archive):
+    with patch("ops.package_lambda_mailer.get_archive", return_value=mock_archive):
         with pytest.raises(RuntimeError):
             process_lambda_package(query)
 

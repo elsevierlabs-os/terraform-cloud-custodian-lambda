@@ -31,7 +31,7 @@ from ops.common import (
 )
 
 try:
-    from c7n_mailer import deploy as c7n_mailer_deploy
+    from c7n_mailer.deploy import get_archive
 except ImportError:  # pragma: no cover
     print(
         "Cloud Custodian (c7n) or c7n_mailer package is not installed. Please install it",
@@ -122,7 +122,7 @@ def process_lambda_package(query):
     mailer_config = add_tags_to_mailer(mailer_config, tags)
 
     try:
-        archive = c7n_mailer_deploy.get_archive(mailer_config)
+        archive = get_archive(mailer_config)
     except OSError as e:
         raise RuntimeError(f"Failed to create mailer archive due to file system error: {e}")
     except Exception as e:  # pragma: no cover
