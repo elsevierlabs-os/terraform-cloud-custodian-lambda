@@ -9,8 +9,8 @@ license = "MIT"
 readme = "README.md"
 requires-python = "<4.0.0,>=3.10.2"
 dependencies = [
-    "c7n==0.9.47",
-    "c7n-mailer==0.6.46",
+    "c7n==0.9.48",
+    "c7n-mailer==0.6.47",
     "decorator==5.2.1",
     "setuptools>=65.0.0",
 ]
