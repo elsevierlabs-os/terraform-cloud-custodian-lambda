@@ -16,8 +16,10 @@ Outputs information regarding the zip created in JSON format:
 - package_versions
 """
 
+import copy
 import hashlib
 import json
+import os
 import sys
 
 from ops.common import (
@@ -31,7 +33,8 @@ from ops.common import (
 )
 
 try:
-    from c7n_mailer.deploy import get_archive
+    from c7n_mailer.deploy import entry_source
+    from c7n.mu import PythonPackageArchive
 except ImportError:  # pragma: no cover
     print(
         "Cloud Custodian (c7n) or c7n_mailer package is not installed. Please install it",
@@ -105,6 +108,34 @@ def add_tags_to_mailer(mailer_config, tags):
     mailer_config["lambda_tags"].update(tags)
 
     return mailer_config
+
+
+# WORKAROUND: This is a modified version of c7n_mailer.deploy.get_archive() that ensures
+# consistent zip file hashes by sorting template folders and files. The upstream
+# code should be used instead once it is patched
+def get_archive(config):
+    """Gets a mailer archive with deterministic file ordering."""
+    deps = ["c7n_mailer"] + list(CORE_DEPS)
+    archive = PythonPackageArchive(modules=deps)
+
+    for d in sorted(set(config.get("templates_folders", []))):
+        if not os.path.exists(d):
+            continue
+
+        template_files = sorted([f for f in os.listdir(d) if os.path.splitext(f)[1] == ".j2"])
+
+        for t in template_files:
+            with open(os.path.join(d, t)) as fh:
+                archive.add_contents("msg-templates/%s" % t, fh.read())
+
+    function_config = copy.deepcopy(config)
+    function_config["templates_folders"] = ["msg-templates/"]
+
+    archive.add_contents("config.json", json.dumps(function_config))
+    archive.add_contents("periodic.py", entry_source)
+
+    archive.close()
+    return archive
 
 
 def process_lambda_package(query):

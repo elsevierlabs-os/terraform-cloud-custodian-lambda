@@ -15,6 +15,50 @@ from tests.ops.fixtures import (
 )
 
 
+def test_get_archive_with_templates():
+    """Test get_archive with template folders."""
+    from ops.package_lambda_mailer import get_archive
+
+    # Create temporary template directory and files
+    with tempfile.TemporaryDirectory() as temp_dir:
+        template_file1 = os.path.join(temp_dir, "template1.j2")
+        template_file2 = os.path.join(temp_dir, "template2.j2")
+        non_template_file = os.path.join(temp_dir, "readme.txt")
+
+        # Create template files
+        with open(template_file1, "w") as f:
+            f.write("Template 1 content: {{ subject }}")
+        with open(template_file2, "w") as f:
+            f.write("Template 2 content: {{ body }}")
+        with open(non_template_file, "w") as f:
+            f.write("This should be ignored")
+
+        config = complete_mailer_config()
+        config["templates_folders"] = [temp_dir]
+
+        archive = get_archive(config)
+
+        # Verify archive contains template files
+        file_list = archive.get_filenames()
+        assert "msg-templates/template1.j2" in file_list
+        assert "msg-templates/template2.j2" in file_list
+        assert "msg-templates/readme.txt" not in file_list  # Non-.j2 files should be excluded
+
+        # Verify template files are sorted
+        template_files = [f for f in file_list if f.startswith("msg-templates/")]
+        assert template_files == sorted(template_files), "Template files should be in sorted order"
+
+        # Verify template content
+        with archive.get_reader() as reader:
+            template1_content = reader.read("msg-templates/template1.j2").decode()
+        assert "Template 1 content: {{ subject }}" in template1_content
+        with archive.get_reader() as reader:
+            template2_content = reader.read("msg-templates/template2.j2").decode()
+        assert "Template 2 content: {{ body }}" in template2_content
+
+        archive.remove()
+
+
 def test_process_lambda_package_success():
     """Test successful process_lambda_package."""
     query = {
