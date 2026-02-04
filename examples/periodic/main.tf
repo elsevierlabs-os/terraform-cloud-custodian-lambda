@@ -9,7 +9,7 @@ locals {
 module "cloud_custodian_s3" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket        = "${local.prefix}periodic-${local.account_id}"
+  bucket_prefix = "${local.prefix}periodic-${local.account_id}-"
   force_destroy = true
 }
 
@@ -81,7 +81,7 @@ module "cloud_custodian_lambda" {
   execution_options = {
     # Not really required but if you run custodian run you need to specify -s/--output-dir you'd then have execution-options
     # as part of the config.json with the output_dir that was specified
-    "output_dir" = "s3://${local.prefix}periodic-${local.account_id}/output?region=${local.region}"
+    "output_dir" = "s3://${module.cloud_custodian_s3.s3_bucket_id}/output?region=${local.region}"
   }
 
   policies = templatefile("${path.module}/templates/policy.yaml.tpl", {
