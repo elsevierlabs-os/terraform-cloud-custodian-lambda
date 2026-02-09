@@ -1,3 +1,9 @@
+variable "create_multi_policies_s3_bucket" {
+  description = "Whether to create the S3 bucket for Cloud Custodian multi-policies outputs"
+  type        = bool
+  default     = true
+}
+
 variable "regions" {
   description = "Regions to deploy the policy to"
   type        = list(string)

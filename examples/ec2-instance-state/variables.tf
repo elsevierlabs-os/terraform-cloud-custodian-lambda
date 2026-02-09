@@ -1,3 +1,9 @@
+variable "create_ec2_instance_state_s3_bucket" {
+  description = "Whether to create the S3 bucket for Cloud Custodian ec2-instance-state outputs"
+  type        = bool
+  default     = true
+}
+
 variable "force_deploy" {
   description = <<EOT
     Force redeployment of Lambda functions by updating a deployment timestamp tag.

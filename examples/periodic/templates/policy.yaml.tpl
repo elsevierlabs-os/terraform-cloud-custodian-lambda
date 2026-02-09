@@ -12,9 +12,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}periodic-${account_id}/output
-      cache_dir: s3://${prefix}periodic-${account_id}/cache
+%{ if use_s3 ~}
+      output_dir: s3://$${prefix}periodic-$${account_id}/output
+      cache_dir: s3://$${prefix}periodic-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     schedule: rate(5 minutes)
     role: "${prefix}periodic-lambda"
     timeout: 300

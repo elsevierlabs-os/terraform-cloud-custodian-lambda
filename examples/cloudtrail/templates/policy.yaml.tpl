@@ -8,9 +8,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}cloudtrail-${account_id}/output
-      cache_dir: s3://${prefix}cloudtrail-${account_id}/cache
+%{ if use_s3 ~}
+      output_dir: s3://$${prefix}cloudtrail-$${account_id}/output
+      cache_dir: s3://$${prefix}cloudtrail-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     role: arn:aws:iam::${account_id}:role/${prefix}cloudtrail-lambda
     events:
     - source: ec2.amazonaws.com

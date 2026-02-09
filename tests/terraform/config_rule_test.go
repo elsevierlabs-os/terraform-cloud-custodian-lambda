@@ -14,6 +14,9 @@ func TestConfigRuleExample(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/config-rule",
+		Vars: map[string]interface{}{
+			"create_config_rule_s3_bucket": false,
+		},
 	})
 
 	defer terraform.Destroy(t, terraformOptions)

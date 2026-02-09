@@ -12,9 +12,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}multi-region-${account_id}/output
-      cache_dir: s3://${prefix}multi-region-${account_id}/cache
+%{ if use_s3 ~}
+      output_dir: s3://$${prefix}multi-region-$${account_id}/output
+      cache_dir: s3://$${prefix}multi-region-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     schedule: cron(0 11 ? * 3 *)
     role: "${prefix}multi-region-lambda"
     timeout: 300
