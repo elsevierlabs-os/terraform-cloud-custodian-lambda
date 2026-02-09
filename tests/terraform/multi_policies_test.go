@@ -18,7 +18,7 @@ func TestMultiPolicies(t *testing.T) {
 		TerraformDir: "../../examples/multi-policies",
 		Vars: map[string]interface{}{
 			"regions":                       expectedRegions,
-			"create_multi_policies_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 

@@ -1,4 +1,4 @@
-variable "create_multi_policies_s3_bucket" {
+variable "create_bucket" {
   description = "Whether to create the S3 bucket for Cloud Custodian multi-policies outputs"
   type        = bool
   default     = true

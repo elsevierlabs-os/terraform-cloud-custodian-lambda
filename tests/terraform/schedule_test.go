@@ -14,7 +14,7 @@ func TestSchedulecExample(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/schedule",
 		Vars: map[string]interface{}{
-			"create_schedule_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 

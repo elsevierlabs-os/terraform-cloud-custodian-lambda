@@ -13,7 +13,7 @@ func TestMultiRegionVarsExample(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/multi-region",
 		Vars: map[string]interface{}{
-			"create_multi_region_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 
@@ -41,7 +41,7 @@ func TestMultiRegionPolicyExample(t *testing.T) {
 
 		Vars: map[string]interface{}{
 			"regions":                      []string{},
-			"create_multi_region_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 
@@ -51,7 +51,7 @@ func TestMultiRegionPolicyExample(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		Vars: map[string]interface{}{
 			"regions":                      []string{},
-			"create_multi_region_s3_bucket": false,
+			"create_bucket": false,
 		},
 		TerraformDir: "../../examples/multi-region",
 	})

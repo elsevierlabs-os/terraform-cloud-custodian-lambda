@@ -14,7 +14,7 @@ func TestCloudtrailExample(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/cloudtrail",
 		Vars: map[string]interface{}{
-			"create_cloudtrail_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 

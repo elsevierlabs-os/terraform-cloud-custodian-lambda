@@ -14,7 +14,7 @@ func TestEc2InstanceStateExample(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/ec2-instance-state",
 		Vars: map[string]interface{}{
-			"create_ec2_instance_state_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 
@@ -57,7 +57,7 @@ func TestEc2InstanceStateExample(t *testing.T) {
 
 		Vars: map[string]interface{}{
 			"force_deploy":                      true,
-			"create_ec2_instance_state_s3_bucket": false,
+			"create_bucket": false,
 		},
 	})
 

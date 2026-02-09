@@ -1,4 +1,4 @@
-variable "create_ec2_instance_state_s3_bucket" {
+variable "create_bucket" {
   description = "Whether to create the S3 bucket for Cloud Custodian ec2-instance-state outputs"
   type        = bool
   default     = true

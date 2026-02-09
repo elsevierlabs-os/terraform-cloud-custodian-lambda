@@ -7,7 +7,7 @@ locals {
 }
 
 module "cloud_custodian_s3" {
-  count  = var.create_schedule_s3_bucket ? 1 : 0
+  count  = var.create_bucket ? 1 : 0
   source = "terraform-aws-modules/s3-bucket/aws"
 
   bucket        = "${local.prefix}schedule-${local.account_id}"
@@ -41,7 +41,7 @@ resource "aws_iam_role_policy" "custodian" {
 
 data "aws_iam_policy_document" "custodian" {
   dynamic "statement" {
-    for_each = var.create_schedule_s3_bucket ? ["${module.cloud_custodian_s3[0].s3_bucket_arn}/*"] : []
+    for_each = var.create_bucket ? ["${module.cloud_custodian_s3[0].s3_bucket_arn}/*"] : []
     content {
       actions = [
         "s3:PutObject",
@@ -122,7 +122,7 @@ module "cloud_custodian_lambda" {
 
   regions = [local.region]
 
-  execution_options = var.create_schedule_s3_bucket ? {
+  execution_options = var.create_bucket ? {
     # Not really required but if you run custodian run you need to specify -s/--output-dir you'd then have execution-options
     # as part of the config.json with the output_dir that was specified
     "output_dir" = "s3://${local.prefix}schedule-${local.account_id}/output?region=${local.region}"
@@ -131,7 +131,7 @@ module "cloud_custodian_lambda" {
   policies = templatefile("${path.module}/templates/policy.yaml.tpl", {
     prefix     = local.prefix
     account_id = local.account_id
-    use_s3     = var.create_schedule_s3_bucket
+    use_s3     = var.create_bucket
   })
 
   depends_on = [
