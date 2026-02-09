@@ -8,7 +8,7 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-%{ if use_s3 ~}
+%{ if create_bucket ~}
       output_dir: s3://$${prefix}cloudtrail-$${account_id}/output
       cache_dir: s3://$${prefix}cloudtrail-$${account_id}/cache
       cache_period: 15

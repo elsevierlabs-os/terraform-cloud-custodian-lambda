@@ -123,9 +123,9 @@ module "custodian_policies" {
   } : {}
 
   policies = templatefile("${path.module}/templates/policies.yaml.tpl", {
-    prefix     = local.prefix
-    account_id = local.account_id
-    use_s3     = var.create_bucket
+    prefix        = local.prefix
+    account_id    = local.account_id
+    create_bucket = var.create_bucket
   })
   regions = var.regions
 

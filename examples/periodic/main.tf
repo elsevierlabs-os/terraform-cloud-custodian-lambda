@@ -88,9 +88,9 @@ module "cloud_custodian_lambda" {
   } : {}
 
   policies = templatefile("${path.module}/templates/policy.yaml.tpl", {
-    prefix     = local.prefix
-    account_id = local.account_id
-    use_s3     = var.create_bucket
+    prefix        = local.prefix
+    account_id    = local.account_id
+    create_bucket = var.create_bucket
   })
 
   depends_on = [
