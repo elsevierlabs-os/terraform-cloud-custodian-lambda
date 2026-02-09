@@ -56,7 +56,7 @@ func TestEc2InstanceStateExample(t *testing.T) {
 		TerraformDir: "../../examples/ec2-instance-state",
 
 		Vars: map[string]interface{}{
-			"force_deploy":                      true,
+			"force_deploy":  true,
 			"create_bucket": false,
 		},
 	})

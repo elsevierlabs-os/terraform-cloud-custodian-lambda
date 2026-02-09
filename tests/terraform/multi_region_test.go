@@ -40,7 +40,7 @@ func TestMultiRegionPolicyExample(t *testing.T) {
 		Targets: []string{target},
 
 		Vars: map[string]interface{}{
-			"regions":                      []string{},
+			"regions":       []string{},
 			"create_bucket": false,
 		},
 	})
@@ -50,7 +50,7 @@ func TestMultiRegionPolicyExample(t *testing.T) {
 	// Second apply without targets
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		Vars: map[string]interface{}{
-			"regions":                      []string{},
+			"regions":       []string{},
 			"create_bucket": false,
 		},
 		TerraformDir: "../../examples/multi-region",
