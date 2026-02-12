@@ -13,6 +13,9 @@ func TestPeriodicExample(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/periodic",
+		Vars: map[string]interface{}{
+			"create_bucket": false,
+		},
 	})
 
 	defer terraform.Destroy(t, terraformOptions)

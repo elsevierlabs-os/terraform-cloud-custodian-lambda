@@ -12,9 +12,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}multi-policies-${account_id}/output
-      cache_dir: s3://${prefix}multi-policies-${account_id}/cache
+%{ if create_bucket ~}
+      output_dir: s3://$${prefix}multi-policies-$${account_id}/output
+      cache_dir: s3://$${prefix}multi-policies-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     schedule: cron(0 11 ? * 3 *)
     timezone: Europe/London
     scheduler-role: ${prefix}multi-policies-scheduler
@@ -31,9 +33,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}multi-policies-${account_id}/output
-      cache_dir: s3://${prefix}multi-policies-${account_id}/cache
+%{ if create_bucket ~}
+      output_dir: s3://$${prefix}multi-policies-$${account_id}/output
+      cache_dir: s3://$${prefix}multi-policies-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     schedule: cron(0 11 ? * 3 *)
     timezone: Europe/London
     scheduler-role: ${prefix}multi-policies-scheduler
@@ -51,9 +55,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}multi-policies-${account_id}/output
-      cache_dir: s3://${prefix}multi-policies-${account_id}/cache
+%{ if create_bucket ~}
+      output_dir: s3://$${prefix}multi-policies-$${account_id}/output
+      cache_dir: s3://$${prefix}multi-policies-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     role: "${prefix}multi-policies-lambda"
     events:
     - pending

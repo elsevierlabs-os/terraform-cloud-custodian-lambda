@@ -12,9 +12,11 @@ policies:
       metrics_enabled: true
       dryrun: false
       log_group: "/cloud-custodian/policies"
-      output_dir: s3://${prefix}schedule-${account_id}/output
-      cache_dir: s3://${prefix}schedule-${account_id}/cache
+%{ if create_bucket ~}
+      output_dir: s3://$${prefix}schedule-$${account_id}/output
+      cache_dir: s3://$${prefix}schedule-$${account_id}/cache
       cache_period: 15
+%{ endif ~}
     schedule: rate(5 minutes)
     timezone: Europe/London
     group-name: ${prefix}schedule-group

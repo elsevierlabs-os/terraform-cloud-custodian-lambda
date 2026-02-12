@@ -32,7 +32,7 @@ data "external" "validate_mailer" {
 }
 
 data "aws_iam_role" "custodian_role" {
-  count = local.role_input != null && !startswith(local.role_input, "arn:") ? 1 : 0
+  count = try(!startswith(local.role_input, "arn:"), false) ? 1 : 0
   name  = local.role_input
 }
 

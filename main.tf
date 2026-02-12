@@ -81,7 +81,7 @@ data "external" "validate_policy" {
 }
 
 data "aws_iam_role" "custodian_role" {
-  count = local.role_input != null && !startswith(local.role_input, "arn:") ? 1 : 0
+  count = try(!startswith(local.role_input, "arn:"), false) ? 1 : 0
   name  = local.role_input
 }
 
@@ -189,7 +189,7 @@ resource "aws_lambda_permission" "periodic" {
 }
 
 data "aws_iam_role" "scheduler_role" {
-  count = local.scheduler_role_input != null && !startswith(local.scheduler_role_input, "arn:") ? 1 : 0
+  count = try(!startswith(local.scheduler_role_input, "arn:"), false) ? 1 : 0
   name  = local.scheduler_role_input
 }
 

@@ -17,7 +17,8 @@ func TestMultiPolicies(t *testing.T) {
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/multi-policies",
 		Vars: map[string]interface{}{
-			"regions": expectedRegions,
+			"regions":       expectedRegions,
+			"create_bucket": false,
 		},
 	})
 

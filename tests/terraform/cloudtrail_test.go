@@ -13,6 +13,9 @@ func TestCloudtrailExample(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../../examples/cloudtrail",
+		Vars: map[string]interface{}{
+			"create_bucket": false,
+		},
 	})
 
 	defer terraform.Destroy(t, terraformOptions)
