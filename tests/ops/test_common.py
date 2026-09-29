@@ -6,9 +6,11 @@ import pytest
 import os
 import tempfile
 from unittest.mock import Mock, patch
+from c7n.config import Config
 
 from ops.common import (
     copy_archive,
+    get_custodian_config,
     get_package_versions,
     validate_format,
     validate_policy_mode,
@@ -324,6 +326,30 @@ def test_get_regions():
 
         regions = get_regions()
         assert set(regions) == {"us-east-1", "eu-west-1"}
+
+
+def test_get_custodian_config_without_account_id():
+    """A config with no resolvable account id is rejected."""
+    with patch("ops.common.AWS") as mock_aws:
+        mock_aws.return_value.initialize.side_effect = lambda config: config
+
+        with pytest.raises(ValidationError, match="sts:GetCallerIdentity"):
+            get_custodian_config(region="eu-west-1")
+
+
+def test_get_custodian_config_resolves_account_id():
+    """A config with a resolvable account id is returned with region and account_id populated."""
+
+    with patch("ops.common.AWS") as mock_aws:
+        mock_aws.return_value.initialize.return_value = Config.empty(
+            region="eu-west-1", regions=("eu-west-1",), account_id="123456789012"
+        )
+
+        config = get_custodian_config(region="eu-west-1")
+
+    assert config.region == "eu-west-1"
+    assert config.regions == ("eu-west-1",)
+    assert config.account_id == "123456789012"
 
 
 def test_get_force_deploy_tags_true():

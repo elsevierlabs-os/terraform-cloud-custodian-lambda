@@ -47,7 +47,7 @@ See the [examples/multi-policies](../../examples/multi-policies) directory for a
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 | <a name="requirement_external"></a> [external](#requirement\_external) | >= 2.0 |
@@ -59,7 +59,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_custodian_policy"></a> [custodian\_policy](#module\_custodian\_policy) | ../.. | n/a |
 
 ## Resources
@@ -69,7 +69,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_policies"></a> [policies](#input\_policies) | Multi-policy configuration in JSON or YAML format with multiple policies.<br/>    Note: The 'vars' section with YAML anchors/aliases is only supported in YAML format. | `string` | n/a | yes |
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | Architecture for the Lambda functions. Allowed: arm64 or x86\_64. | `string` | `"arm64"` | no |
 | <a name="input_execution_options"></a> [execution\_options](#input\_execution\_options) | Execution options for the AWS Lambda functions.<br/>    Note that these are execution-options that would be set via the CLI when running `custodian run`.<br/>    You can also set a more wide range of execution-options within the policy.<br/>    See: https://cloudcustodian.io/docs/aws/lambda.html#execution-options | `map(any)` | `{}` | no |
@@ -79,7 +79,7 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_lambda_function_arn"></a> [lambda\_function\_arn](#output\_lambda\_function\_arn) | Map of policy names to Lambda function ARNs by region |
 | <a name="output_lambda_function_name"></a> [lambda\_function\_name](#output\_lambda\_function\_name) | Map of policy names to Lambda function names by region |
 | <a name="output_mode_type"></a> [mode\_type](#output\_mode\_type) | Map of policy names to their Cloud Custodian mode types |

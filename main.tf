@@ -5,15 +5,13 @@ locals {
   policy_obj = one([
     for p in local.policies_obj.policies : p if p.name == local.policy_name
   ])
-  function_prefix  = try(local.policy_obj.mode["function-prefix"], "custodian-")
-  function_name    = "${local.function_prefix}${local.policy_obj.name}"
-  description      = "cloud-custodian lambda policy"
-  handler          = try(local.policy_obj.mode.handler, "custodian_policy.run")
-  layers           = try(local.policy_obj.mode.layers, [])
-  filename         = data.external.package_lambda.result["zip_path"]
-  source_code_hash = data.external.package_lambda.result["sha256_base64"]
-  concurrency      = try(local.policy_obj.mode.concurrency, -1)
-  role_input       = try(local.policy_obj.mode.role, null)
+  function_prefix = try(local.policy_obj.mode["function-prefix"], "custodian-")
+  function_name   = "${local.function_prefix}${local.policy_obj.name}"
+  description     = "cloud-custodian lambda policy"
+  handler         = try(local.policy_obj.mode.handler, "custodian_policy.run")
+  layers          = try(local.policy_obj.mode.layers, [])
+  concurrency     = try(local.policy_obj.mode.concurrency, -1)
+  role_input      = try(local.policy_obj.mode.role, null)
   role = local.role_input != null ? (
     startswith(local.role_input, "arn:") ? local.role_input : data.aws_iam_role.custodian_role[0].arn
   ) : null
@@ -29,8 +27,8 @@ locals {
   kms_key_arn            = try(local.policy_obj.mode.kms_key_arn, null)
   tracing_config         = try(local.policy_obj.mode.tracing_config, null)
   tracing_config_mode    = local.tracing_config != null ? try(local.tracing_config.Mode, "PassThrough") : "PassThrough"
-  custodian_tags         = jsondecode(data.external.package_lambda.result.custodian_tags)
-  regions                = length(var.regions) > 0 ? var.regions : jsondecode(data.external.package_lambda.result.policy_regions)
+  zips                   = jsondecode(data.external.package_lambda.result.zips)
+  regions                = length(var.regions) > 0 ? var.regions : jsondecode(data.external.package_lambda.result.condition_regions)
 
   mode_type = try(local.policy_obj.mode.type, null)
 
@@ -102,6 +100,7 @@ data "external" "package_lambda" {
     execution_options = jsonencode(var.execution_options)
     function_name     = local.function_name
     role              = local.role
+    regions           = jsonencode(var.regions)
     valid             = data.external.validate_policy.result.valid
     force_deploy      = tostring(var.force_deploy)
   }
@@ -120,12 +119,12 @@ resource "aws_lambda_function" "custodian" {
   timeout                        = local.timeout
   runtime                        = local.runtime
   layers                         = local.layers
-  filename                       = local.filename
-  source_code_hash               = local.source_code_hash
+  filename                       = local.zips[each.key].path
+  source_code_hash               = local.zips[each.key].sha256_base64
   publish                        = true
   architectures                  = [var.architecture]
   kms_key_arn                    = local.kms_key_arn
-  tags                           = local.custodian_tags
+  tags                           = local.zips[each.key].tags
 
   dynamic "vpc_config" {
     for_each = local.subnets != null && local.security_groups != null ? [true] : []

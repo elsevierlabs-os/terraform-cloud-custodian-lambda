@@ -18,7 +18,7 @@ try:
     from c7n.loader import PolicyLoader
     from c7n.mu import generate_requirements
     from c7n.exceptions import PolicyValidationError
-    from c7n.resources.aws import get_profile_session
+    from c7n.resources.aws import AWS, get_profile_session
 except ImportError:  # pragma: no cover
     print("Cloud Custodian (c7n) package is not installed. Please install it", file=sys.stderr)
     sys.exit(1)
@@ -220,11 +220,42 @@ def validate_policy_mode(policy_dict, allowed_types=ALLOWED_TYPES):
     return mode_type
 
 
-def validate_with_custodian(policies_dict):
+def get_custodian_config(region=None, account_id=None):
+    """Build a Cloud Custodian config with the region and account id resolved.
+
+    Args:
+        region: AWS region the policy is being packaged for
+        account_id: Known AWS account id, avoiding a repeat sts:GetCallerIdentity call
+
+    Returns:
+        Config: Cloud Custodian config with region and account_id populated
+
+    Raises:
+        ValidationError: If the account id cannot be resolved
+    """
+    config = Config.empty()
+    if region:
+        config.region = region
+    # Seeding regions stops the provider exiting when no default region is set
+    config.regions = (config.region,)
+    config.account_id = account_id
+    config = AWS().initialize(config)
+
+    if not config.account_id:
+        raise ValidationError(
+            "Could not resolve the AWS account id via sts:GetCallerIdentity. "
+            "Check your AWS credentials."
+        )
+
+    return config
+
+
+def validate_with_custodian(policies_dict, config=None):
     """Validate using Cloud Custodian's internal validation.
 
     Args:
         policies_dict: Dictionary containing policy data
+        config: Optional Cloud Custodian config. Defaults to an empty config
 
     Returns:
         policy_instance: The validated Cloud Custodian policy instance
@@ -232,8 +263,11 @@ def validate_with_custodian(policies_dict):
     Raises:
         ValidationError: If validation fails
     """
+    if config is None:
+        config = Config.empty()
+
     try:
-        loader = PolicyLoader(Config.empty())
+        loader = PolicyLoader(config)
         collection = loader.load_data(policies_dict, file_uri="-")
         for policy_instance in collection:
             policy_instance.validate()
@@ -273,15 +307,16 @@ def hex_ascii_encoder(digest_bytes):
     return digest_bytes.hex().encode("ascii")
 
 
-def copy_archive(archive, hex_hash, function_name, build_root="build"):
+def copy_archive(archive, hex_hash, function_name, build_root="build", clean=True):
     """Copy archive to build directory with hash-based filename
 
     Args:
         archive: Archive object with .path attribute
         hex_hash: Hexadecimal hash string for filename
-        region: AWS region for directory structure
         function_name: Lambda function name for directory structure
         build_root: Root build directory (default: "build")
+        clean: Remove any existing build directory first. Set to False when
+            copying more than one archive for the same function
 
     Returns:
         str: Absolute path to the final zip file
@@ -294,7 +329,7 @@ def copy_archive(archive, hex_hash, function_name, build_root="build"):
 
     try:
         build_directory = os.path.join(build_root, function_name)
-        if os.path.exists(build_directory):
+        if clean and os.path.exists(build_directory):
             shutil.rmtree(build_directory)
         os.makedirs(build_directory, exist_ok=True)
 

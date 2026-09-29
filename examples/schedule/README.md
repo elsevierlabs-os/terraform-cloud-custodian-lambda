@@ -1,7 +1,7 @@
-# Cloudtrail
+# Schedule
 
-Configuration in this directory creates an example cloud custodian cloudtrail policy as a lambda.
- 
+Configuration in this directory creates an example cloud custodian schedule policy as a lambda.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -29,9 +29,13 @@ Configuration in this directory creates an example cloud custodian cloudtrail po
 | Name | Type |
 | ---- | ---- |
 | [aws_iam_role.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.scheduler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.scheduler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_scheduler_schedule_group.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule_group) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.scheduler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
@@ -43,8 +47,10 @@ Configuration in this directory creates an example cloud custodian cloudtrail po
 
 | Name | Description |
 | ---- | ----------- |
-| <a name="output_cloudwatch_event_pattern"></a> [cloudwatch\_event\_pattern](#output\_cloudwatch\_event\_pattern) | The event pattern for event mode |
-| <a name="output_cloudwatch_event_rule_name"></a> [cloudwatch\_event\_rule\_name](#output\_cloudwatch\_event\_rule\_name) | The name of the CloudWatch Event Rule for event mode |
+| <a name="output_eventbridge_schedule_expression"></a> [eventbridge\_schedule\_expression](#output\_eventbridge\_schedule\_expression) | The schedule expression for schedule mode |
+| <a name="output_eventbridge_schedule_group_name"></a> [eventbridge\_schedule\_group\_name](#output\_eventbridge\_schedule\_group\_name) | The EventBridge Schedule group name |
+| <a name="output_eventbridge_schedule_name"></a> [eventbridge\_schedule\_name](#output\_eventbridge\_schedule\_name) | The name of the EventBridge Schedule |
+| <a name="output_eventbridge_schedule_timezone"></a> [eventbridge\_schedule\_timezone](#output\_eventbridge\_schedule\_timezone) | The timezone for the schedule |
 | <a name="output_lambda_function"></a> [lambda\_function](#output\_lambda\_function) | The complete lambda function object for each region |
 | <a name="output_lambda_function_name"></a> [lambda\_function\_name](#output\_lambda\_function\_name) | The name of the lambda function |
 | <a name="output_mode_type"></a> [mode\_type](#output\_mode\_type) | The type of Cloud Custodian mode (periodic, cloudtrail, config-rule, etc.) |

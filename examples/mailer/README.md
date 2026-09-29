@@ -6,40 +6,40 @@ Configuration in this directory creates an example cloud custodian mailer as a l
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
-| <a name="requirement_external"></a> [external](#requirement\_external) | >= 1.0 |
+| <a name="requirement_external"></a> [external](#requirement\_external) | >= 2.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.12.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.0 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_cloud_custodian_lambda_mailer"></a> [cloud\_custodian\_lambda\_mailer](#module\_cloud\_custodian\_lambda\_mailer) | ../../modules/cloud-custodian-lambda-mailer | n/a |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_iam_role.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_region"></a> [region](#input\_region) | Regions to deploy the mailer to | `string` | `"eu-west-1"` | no |
 
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_event_rule_name"></a> [event\_rule\_name](#output\_event\_rule\_name) | The name of the CloudWatch Event Rule for event mode |
 | <a name="output_event_rule_schedule_expression"></a> [event\_rule\_schedule\_expression](#output\_event\_rule\_schedule\_expression) | The event pattern for event mode |
 | <a name="output_lambda_function"></a> [lambda\_function](#output\_lambda\_function) | Complete AWS Lambda function resource with all attributes |

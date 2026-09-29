@@ -220,6 +220,25 @@ policies:
 DETAILED_POLICIES_DICT = yaml_str_to_dict(DETAILED_POLICIES_YAML)
 DETAILED_POLICY_DICT = DETAILED_POLICIES_DICT["policies"][0]
 
+VARIABLE_POLICIES_DICT = {
+    "policies": [
+        {
+            "name": "test-variables",
+            "resource": "ec2",
+            "mode": {
+                "type": "periodic",
+                "schedule": "rate(1 day)",
+                "role": "arn:aws:iam::123456789012:role/custodian-lambda",
+                "execution-options": {"output_dir": "s3://bucket/{account_id}/{region}/logs"},
+            },
+            "filters": [
+                {"type": "value", "key": "tag:Account", "value": "{account_id}"},
+                {"type": "value", "key": "tag:Region", "value": "{region}"},
+            ],
+        }
+    ]
+}
+
 EXEC_OPTIONS = {
     "region": "us-east-1",
     "log_group": "/cloud-custodian/policies",

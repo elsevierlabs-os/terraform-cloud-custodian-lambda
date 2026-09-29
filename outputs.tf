@@ -35,11 +35,6 @@ output "package_versions" {
   value       = try(data.external.package_lambda.result["package_versions"], null)
 }
 
-output "sha256_hex" {
-  description = "SHA256 hash of the Lambda package in hexadecimal format"
-  value       = try(data.external.package_lambda.result["sha256_hex"], null)
-}
-
 # Lambda Function Outputs
 output "lambda_function" {
   description = "Complete AWS Lambda function resource with all attributes"

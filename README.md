@@ -102,7 +102,7 @@ See [Troubleshooting](./docs/TROUBLESHOOTING.md)
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 | <a name="requirement_external"></a> [external](#requirement\_external) | >= 2.0 |
@@ -110,9 +110,9 @@ See [Troubleshooting](./docs/TROUBLESHOOTING.md)
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.11.0 |
-| <a name="provider_external"></a> [external](#provider\_external) | 2.3.5 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.0 |
+| <a name="provider_external"></a> [external](#provider\_external) | >= 2.0 |
 
 ## Modules
 
@@ -121,17 +121,15 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
-| [aws_cloudwatch_event_rule.cloudwatch_event](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
-| [aws_cloudwatch_event_rule.periodic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
-| [aws_cloudwatch_event_target.cloudwatch_event](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
-| [aws_cloudwatch_event_target.periodic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| ---- | ---- |
+| [aws_cloudwatch_event_rule.eventbridge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.eventbridge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_config_config_rule.config_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule) | resource |
 | [aws_lambda_function.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
-| [aws_lambda_permission.cloudwatch_event](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
-| [aws_lambda_permission.config_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
-| [aws_lambda_permission.periodic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_lambda_permission.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_scheduler_schedule.schedule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule) | resource |
 | [aws_iam_role.custodian_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
+| [aws_iam_role.scheduler_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 | [external_external.cloudwatch_event](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
 | [external_external.config_rule](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
 | [external_external.package_lambda](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) | data source |
@@ -140,7 +138,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_policies"></a> [policies](#input\_policies) | Policies in JSON or YAML format, this should either contain one policy or if it contains multiple `policy_name` should be provided.<br/>    Note: The 'vars' section with YAML anchors/aliases is only supported in YAML format. | `string` | n/a | yes |
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | Architecture for the Lambda function. Allowed: arm64 or x86\_64. | `string` | `"arm64"` | no |
 | <a name="input_execution_options"></a> [execution\_options](#input\_execution\_options) | Execution options for the AWS Lambda function.<br/>    Note that these are execution-options that would be set via the CLI when running `custodian run`.<br/>    You can also set a more wide range of execution-options within the policy.<br/>    See: https://cloudcustodian.io/docs/aws/lambda.html#execution-options | `map(any)` | `{}` | no |
@@ -151,7 +149,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_cloudwatch_event_pattern"></a> [cloudwatch\_event\_pattern](#output\_cloudwatch\_event\_pattern) | The event pattern for event mode |
 | <a name="output_cloudwatch_event_rule"></a> [cloudwatch\_event\_rule](#output\_cloudwatch\_event\_rule) | Complete AWS Cloudwatch Event Rule for cloudwatch event resource with all attributes |
 | <a name="output_cloudwatch_event_rule_arn"></a> [cloudwatch\_event\_rule\_arn](#output\_cloudwatch\_event\_rule\_arn) | The ARN of the CloudWatch Event Rule for event mode |
@@ -160,6 +158,12 @@ No modules.
 | <a name="output_config_rule_arn"></a> [config\_rule\_arn](#output\_config\_rule\_arn) | The ARN of the AWS Config Rule |
 | <a name="output_config_rule_name"></a> [config\_rule\_name](#output\_config\_rule\_name) | The name of the AWS Config Rule |
 | <a name="output_config_rule_rule_id"></a> [config\_rule\_rule\_id](#output\_config\_rule\_rule\_id) | The ID of the AWS Config Rule |
+| <a name="output_eventbridge_schedule"></a> [eventbridge\_schedule](#output\_eventbridge\_schedule) | Complete AWS EventBridge Schedule resource with all attributes |
+| <a name="output_eventbridge_schedule_arn"></a> [eventbridge\_schedule\_arn](#output\_eventbridge\_schedule\_arn) | The ARN of the EventBridge Schedule |
+| <a name="output_eventbridge_schedule_expression"></a> [eventbridge\_schedule\_expression](#output\_eventbridge\_schedule\_expression) | The schedule expression for schedule mode |
+| <a name="output_eventbridge_schedule_group_name"></a> [eventbridge\_schedule\_group\_name](#output\_eventbridge\_schedule\_group\_name) | The EventBridge Schedule group name |
+| <a name="output_eventbridge_schedule_name"></a> [eventbridge\_schedule\_name](#output\_eventbridge\_schedule\_name) | The name of the EventBridge Schedule |
+| <a name="output_eventbridge_schedule_timezone"></a> [eventbridge\_schedule\_timezone](#output\_eventbridge\_schedule\_timezone) | The timezone for the schedule |
 | <a name="output_lambda_function"></a> [lambda\_function](#output\_lambda\_function) | Complete AWS Lambda function resource with all attributes |
 | <a name="output_lambda_function_arn"></a> [lambda\_function\_arn](#output\_lambda\_function\_arn) | Map of Lambda function ARNs by region |
 | <a name="output_lambda_function_filename"></a> [lambda\_function\_filename](#output\_lambda\_function\_filename) | Map of Lambda function filenames by region |
@@ -179,5 +183,4 @@ No modules.
 | <a name="output_policies_yaml"></a> [policies\_yaml](#output\_policies\_yaml) | The policies rendered as YAML (only the specific policy if policy\_name is set) |
 | <a name="output_policy_name"></a> [policy\_name](#output\_policy\_name) | The name of the policy being deployed (if policy\_name was specified) |
 | <a name="output_regions"></a> [regions](#output\_regions) | Regions that the policy is deployed to |
-| <a name="output_sha256_hex"></a> [sha256\_hex](#output\_sha256\_hex) | SHA256 hash of the Lambda package in hexadecimal format |
 <!-- END_TF_DOCS -->

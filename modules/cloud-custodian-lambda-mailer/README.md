@@ -28,7 +28,7 @@ Also see [examples/mailer](../../examples/mailer).
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 | <a name="requirement_external"></a> [external](#requirement\_external) | >= 2.0 |
@@ -36,9 +36,9 @@ Also see [examples/mailer](../../examples/mailer).
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.13.0 |
-| <a name="provider_external"></a> [external](#provider\_external) | 2.3.5 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.0 |
+| <a name="provider_external"></a> [external](#provider\_external) | >= 2.0 |
 
 ## Modules
 
@@ -47,7 +47,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_event_rule.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_lambda_function.custodian](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
@@ -59,7 +59,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_mailer"></a> [mailer](#input\_mailer) | Mailer configuration in JSON or YAML format | `string` | n/a | yes |
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | Architecture for the Lambda function. Allowed: arm64 or x86\_64. | `string` | `"arm64"` | no |
 | <a name="input_force_deploy"></a> [force\_deploy](#input\_force\_deploy) | Force redeployment of Lambda function by updating a deployment timestamp tag.<br/>    Set to true to trigger redeployment when source\_code\_hash doesn't detect changes. | `bool` | `false` | no |
@@ -68,7 +68,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_event_rule"></a> [event\_rule](#output\_event\_rule) | Complete AWS Cloudwatch Event Rule with all attributes |
 | <a name="output_event_rule_arn"></a> [event\_rule\_arn](#output\_event\_rule\_arn) | The ARN of the CloudWatch Event Rule |
 | <a name="output_event_rule_name"></a> [event\_rule\_name](#output\_event\_rule\_name) | The name of the CloudWatch Event Rule |

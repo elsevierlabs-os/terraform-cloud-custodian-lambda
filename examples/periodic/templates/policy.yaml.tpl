@@ -1,8 +1,13 @@
 ---
 vars:
-  image-age-filters: &image-age-filters
-    - type: image-age
-      days: 7
+  image-allowed-filters: &image-allowed-filters
+    - type: image
+      key: Public
+      value: true
+    - type: image
+      key: OwnerId
+      op: ne
+      value: "{account_id}"
 policies:
 - name: periodic
   mode:
@@ -23,6 +28,6 @@ policies:
     memory: 256
     tags:
       Test: 'true'
-  resource: ami
+  resource: ec2
   filters:
-  - and: *image-age-filters
+  - or: *image-allowed-filters

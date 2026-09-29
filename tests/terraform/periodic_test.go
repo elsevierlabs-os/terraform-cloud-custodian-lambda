@@ -1,11 +1,38 @@
 package test
 
 import (
+	"archive/zip"
+	"encoding/json"
+	"io"
+	"regexp"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// readZipEntry reads a single named file's contents out of a zip archive on disk.
+func readZipEntry(t *testing.T, zipPath, entryName string) string {
+	r, err := zip.OpenReader(zipPath)
+	require.NoError(t, err)
+	defer r.Close()
+
+	for _, f := range r.File {
+		if f.Name == entryName {
+			rc, err := f.Open()
+			require.NoError(t, err)
+			defer rc.Close()
+
+			data, err := io.ReadAll(rc)
+			require.NoError(t, err)
+			return string(data)
+		}
+	}
+
+	t.Fatalf("entry %q not found in zip %q", entryName, zipPath)
+	return ""
+}
 
 func TestPeriodicExample(t *testing.T) {
 
@@ -47,9 +74,38 @@ func TestPeriodicExample(t *testing.T) {
 	assert.Contains(t, lambdaTags["custodian-info"], "mode=periodic", "The 'custodian-info' tag should include the mode.")
 	assert.Contains(t, lambdaTags["custodian-info"], "version", "The 'custodian-info' tag should include the version.")
 
+	// Ensure expansion of {account_id} for image OwnerId filter worked
+	packageLambdaResult := terraform.OutputMap(t, terraformOptions, "package_lambda_result")
+
+	var zips map[string]struct {
+		Path string `json:"path"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(packageLambdaResult["zips"]), &zips))
+
+	zipInfo, ok := zips["eu-west-1"]
+	require.True(t, ok, "expected a packaged zip entry for eu-west-1")
+
+	configJSON := readZipEntry(t, zipInfo.Path, "config.json")
+
+	ownerIDPattern := regexp.MustCompile(`(?s)\{\s*"type":\s*"image",\s*"key":\s*"OwnerId".*?\}`)
+	rawFilter := ownerIDPattern.FindString(configJSON)
+	require.NotEmpty(t, rawFilter, "expected to find the OwnerId filter in the packaged policy")
+
+	var valueFilter struct {
+		Type  string `json:"type"`
+		Key   string `json:"key"`
+		Op    string `json:"op"`
+		Value string `json:"value"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(rawFilter), &valueFilter))
+
+	filterJSON, _ := json.MarshalIndent(valueFilter, "", "  ")
+	t.Logf("resolved OwnerId filter in config.json:\n%s", filterJSON)
+
+	assert.Regexp(t, `^\d+$`, valueFilter.Value, "the resolved account_id should be numeric")
+
 	// Get SHA256 hash from first apply
 	firstSha256Base64 := terraform.Output(t, terraformOptions, "lambda_function_source_code_hash")
-	firstSha256Hex := terraform.Output(t, terraformOptions, "sha256_hex")
 	firstPackageVersions := terraform.Output(t, terraformOptions, "package_versions")
 
 	// Second apply to ensure idempotency with the SHA256 hash
@@ -57,14 +113,11 @@ func TestPeriodicExample(t *testing.T) {
 
 	// Get SHA256 hash from second apply
 	secondSha256Base64 := terraform.Output(t, terraformOptions, "lambda_function_source_code_hash")
-	secondSha256Hex := terraform.Output(t, terraformOptions, "sha256_hex")
 	secondPackageVersions := terraform.Output(t, terraformOptions, "package_versions")
 
 	// Verify hashes are identical from first and second apply which proves idempotency
 	assert.Equal(t, firstSha256Base64, secondSha256Base64,
 		"Lambda source code hash (base64) should be identical across multiple applies when no changes are made")
-	assert.Equal(t, firstSha256Hex, secondSha256Hex,
-		"Lambda source code hash (hex) should be identical across multiple applies when no changes are made")
 	assert.Equal(t, firstPackageVersions, secondPackageVersions,
 		"Package versions should be identical across multiple applies when no changes are made")
 }

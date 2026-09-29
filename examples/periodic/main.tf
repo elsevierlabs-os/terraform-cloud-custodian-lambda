@@ -69,7 +69,8 @@ data "aws_iam_policy_document" "custodian" {
   statement {
 
     actions = [
-      "ec2:DescribeImages"
+      "ec2:DescribeImages",
+      "ec2:DescribeInstances",
     ]
 
     resources = ["*"]
